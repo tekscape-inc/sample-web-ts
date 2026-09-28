@@ -1,0 +1,15 @@
+version: 1
+repo: {github: tekscape-inc/sample-web-ts, base_branch: main, business: tekscape, customer: null}
+stack: {languages: [typescript], toolchain: {node: "26"}}
+commands:
+  setup: {run: "npm ci"}
+  build: {run: "npm run build"}
+  lint: {run: "npm run lint"}
+  typecheck: {run: "npx tsc --noEmit"}
+  test: null                        # no tests: feature cards refused until characterization lands
+  e2e: null
+  boot: {run: "npm run preview & pid=$!; for i in $(seq 30); do curl -sf http://127.0.0.1:4173/ >/dev/null && break; sleep 1; done; curl -sf http://127.0.0.1:4173/ >/dev/null; rc=$?; kill $pid; exit $rc", timeout_s: 120}
+paths: {src: ["src/**", "index.html"], tests: ["**/*.test.ts", "e2e/**"], generated: ["dist/**"]}
+risk_class: high
+owner_approval: {approvers: [jclendennen], required_for: [risk_high, new_dependency]}
+lanes: {qwen: false}
