@@ -1,0 +1,81 @@
+{
+  "id": "w-001",
+  "repo": "tekscape-inc/sample-web-ts",
+  "kind": "feature",
+  "lane": "qwen",
+  "risk_class": "medium",
+  "title": "Personalise the #greeting heading from a ?name= query parameter",
+  "spec": "Change only src/main.ts. Today the import side effect always writes greeting(\"world\") into h1#greeting. Instead, read the `name` query parameter from the page URL (URLSearchParams over location.search, so percent-encoding is decoded) and write greeting(name) into #greeting. If the parameter is missing, empty, or whitespace-only, fall back to greeting(\"world\"). Keep writing through textContent (never innerHTML): the name is untrusted input and must render as literal text. Keep the exported greeting(name: string): string signature and behaviour unchanged; this is not a public_api change. Constraint from the c-001 characterization tests (e2e/greeting.spec.ts): they import src/main.ts in Node with a stubbed `document` and no `location`/`window` global, and expect the import to query '#greeting' exactly once and set 'Hello, world!'. So the URL read must not throw when `location` is undefined (e.g. `globalThis.location?.search ?? \"\"`) and must fall back to world there. The full suite `npx playwright test` (c-001 + this card) must stay green, and `npm run build` and `npm run lint` must pass. No new dependencies. risk_class is medium: the manifest risk_class is medium and the change touches no owner_approval.required_for category (new_dependency).",
+  "acceptance": {
+    "criteria": [
+      {
+        "id": "AC1",
+        "text": "Visiting /?name=Ada renders h1#greeting with text 'Hello, Ada!'",
+        "verified_by": "e2e/name-param.spec.ts::?name=Ada renders Hello, Ada!"
+      },
+      {
+        "id": "AC2",
+        "text": "With no name parameter (/?other=1) the heading is 'Hello, world!'",
+        "verified_by": "e2e/name-param.spec.ts::missing name falls back to Hello, world!"
+      },
+      {
+        "id": "AC3",
+        "text": "With an empty name (/?name=) the heading is 'Hello, world!'",
+        "verified_by": "e2e/name-param.spec.ts::empty name falls back to Hello, world!"
+      },
+      {
+        "id": "AC4",
+        "text": "With a whitespace-only name (/?name=%20%20%09) the heading is 'Hello, world!'",
+        "verified_by": "e2e/name-param.spec.ts::whitespace-only name falls back to Hello, world!"
+      },
+      {
+        "id": "AC5",
+        "text": "A percent-encoded name is decoded: /?name=Ada%20Lovelace renders 'Hello, Ada Lovelace!'",
+        "verified_by": "e2e/name-param.spec.ts::URL-encoded name is decoded"
+      },
+      {
+        "id": "AC6",
+        "text": "A name containing markup (<b>Ada</b>) renders as literal text 'Hello, <b>Ada</b>!' and creates no <b> element",
+        "verified_by": "e2e/name-param.spec.ts::name is rendered as text, never as markup"
+      }
+    ],
+    "tests": [
+      {
+        "path": "e2e/name-param.spec.ts",
+        "sha256": "191a034887caf0387ba5b05ee4ba657677c80303cb455c94e6e2a570144d9e8a"
+      }
+    ]
+  },
+  "success": {
+    "run": "npx playwright test e2e/name-param.spec.ts",
+    "timeout_s": 180
+  },
+  "scope": {
+    "writable": [
+      "src/main.ts"
+    ],
+    "out_of_scope": [
+      "index.html, playwright.config.ts, package.json, package-lock.json and any e2e/** file",
+      "changing the greeting() export's signature or its output for any input",
+      "trimming or otherwise normalising non-blank names beyond the blank check",
+      "routing, 404 handling, or reading any query parameter other than name"
+    ]
+  },
+  "diff_budget": {
+    "files": 1,
+    "lines": 40
+  },
+  "deps": {
+    "allowed_new": []
+  },
+  "depends_on": [
+    "c-001"
+  ],
+  "author": {
+    "architect": {
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "implementer_vendor_excluded_from_judge": true
+  }
+}
