@@ -18,7 +18,7 @@ jobs:
       - name: fetch the factory CLI (public code-only mirror, pinned)
         run: |
           git clone -q https://github.com/tekscape-inc/factory-cli.git "$RUNNER_TEMP/factory-cli"
-          git -C "$RUNNER_TEMP/factory-cli" checkout -q "46971bde020336b82d556a3e1dadacd76949a18b"
+          git -C "$RUNNER_TEMP/factory-cli" checkout -q "ef651ea5dcc160818ea887f3d560378371278dc5"
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
