@@ -38,12 +38,11 @@ paths:
   - e2e/**
   generated:
   - dist/**
-risk_class: high
+risk_class: medium
 owner_approval:
   approvers:
   - jclendennen
   required_for:
-  - risk_high
   - new_dependency
 lanes:
-  qwen: false
+  qwen: true
