@@ -1,0 +1,124 @@
+{
+  "id": "c-001",
+  "repo": "tekscape-inc/sample-web-ts",
+  "kind": "characterization",
+  "lane": "coder-pro",
+  "risk_class": "high",
+  "title": "Pin current page title, heading, greeting() and unknown-route behaviour",
+  "spec": "Characterization only: add Playwright tests under e2e/ that pin what the app does on base, so later cards have a safety net. Covered: the document title and html lang of the page served by `npm run preview`; the single h1#greeting and its rendered text 'Hello, world!'; the greeting() export of src/main.ts, imported in Node with a stubbed document (typical, empty, special-character, undefined and null inputs, plus the import side effect that writes into #greeting); and unknown routes. There is no 404: the preview server's SPA fallback answers any unknown path with status 200 and the home document, and this is pinned as current behaviour, possibly a bug. Expected strings live in golden files under e2e/golden/ and are compared byte-for-byte. Tests must pass on base. Do not change src/**, index.html, config, lockfiles, .factory/** or .github/**; no new dependencies. risk_class is high because the manifest's risk_class is high (owner_approval risk_high).",
+  "acceptance": {
+    "criteria": [
+      {
+        "id": "AC1",
+        "text": "GET / responds 200 text/html and the document title equals golden page/title.txt ('sample-web-ts')",
+        "verified_by": "e2e/page.spec.ts::document title"
+      },
+      {
+        "id": "AC2",
+        "text": "The page has exactly one h1, id 'greeting', text equal to golden page/heading.txt ('Hello, world!')",
+        "verified_by": "e2e/page.spec.ts::single #greeting h1 with rendered text"
+      },
+      {
+        "id": "AC3",
+        "text": "greeting('Ada') == 'Hello, Ada!' and greeting('world') == 'Hello, world!'",
+        "verified_by": "e2e/greeting.spec.ts::typical name"
+      },
+      {
+        "id": "AC4",
+        "text": "greeting edge inputs: '' -> 'Hello, !', special characters passed through verbatim, undefined -> 'Hello, undefined!', null -> 'Hello, null!'",
+        "verified_by": "e2e/greeting.spec.ts::empty string"
+      },
+      {
+        "id": "AC5",
+        "text": "Importing src/main.ts queries '#greeting' once and sets its textContent to 'Hello, world!'",
+        "verified_by": "e2e/greeting.spec.ts::import side effect writes greeting('world') into #greeting"
+      },
+      {
+        "id": "AC6",
+        "text": "Unknown routes (/does-not-exist, /nested/deep/path, /does-not-exist.txt) respond 200 with the same body as / (no 404)",
+        "verified_by": "e2e/page.spec.ts::GET /does-not-exist responds 200 with the home document"
+      },
+      {
+        "id": "AC7",
+        "text": "Navigating to /does-not-exist renders the home page (title and greeting heading) with status 200",
+        "verified_by": "e2e/page.spec.ts::navigating to an unknown route renders the home page"
+      }
+    ],
+    "tests": [
+      {
+        "path": "e2e/page.spec.ts",
+        "sha256": "54b0c24e0463d25af94e06c295722b61184bf6f270048823385de35c4459cf31"
+      },
+      {
+        "path": "e2e/greeting.spec.ts",
+        "sha256": "5d581618eaaa6e1fff32506f1b3117de46ca0810e53194610f94fb4810465b18"
+      },
+      {
+        "path": "e2e/golden/page/title.txt",
+        "sha256": "09b5a1e563d6d3cf5440b2c730a2eec633c4692ae8ae7bfc820e6dc037abe8c0"
+      },
+      {
+        "path": "e2e/golden/page/heading.txt",
+        "sha256": "d9014c4624844aa5bac314773d6b689ad467fa4e1d1a50a1b8a99d5a95f72ff5"
+      },
+      {
+        "path": "e2e/golden/greeting/ada.txt",
+        "sha256": "902f4d30a6318ad21ab741f67b38666b0049d410161f1b813e69f49ba1e3897a"
+      },
+      {
+        "path": "e2e/golden/greeting/world.txt",
+        "sha256": "d9014c4624844aa5bac314773d6b689ad467fa4e1d1a50a1b8a99d5a95f72ff5"
+      },
+      {
+        "path": "e2e/golden/greeting/empty.txt",
+        "sha256": "c37b4fe184ef1811d0b19d122ec25fd0040bfcf090da6619163aa830f6fd35ba"
+      },
+      {
+        "path": "e2e/golden/greeting/special.txt",
+        "sha256": "9da2263624dc22e0e3b21e002f0b87a53b651605d375cb8236a68dfcbd042422"
+      },
+      {
+        "path": "e2e/golden/greeting/undefined.txt",
+        "sha256": "8d4ea1530a3553e957f699fc99c4085a5a11eb93e5db41e302d07c19b73a31cc"
+      },
+      {
+        "path": "e2e/golden/greeting/null.txt",
+        "sha256": "0765e7d28e8b81abc65e5ae164bbb015919348b3f6a0807a4aba045ee80fef4e"
+      }
+    ]
+  },
+  "success": {
+    "run": "npx playwright test",
+    "timeout_s": 300
+  },
+  "scope": {
+    "writable": [
+      "**/*.test.ts",
+      "e2e/**"
+    ],
+    "out_of_scope": [
+      "src/**",
+      "index.html",
+      "playwright.config.ts",
+      "package.json",
+      "package-lock.json",
+      "fixing the missing 404",
+      "input validation in greeting()"
+    ]
+  },
+  "diff_budget": {
+    "files": 10,
+    "lines": 200
+  },
+  "deps": {
+    "allowed_new": []
+  },
+  "depends_on": [],
+  "author": {
+    "architect": {
+      "vendor": "anthropic",
+      "model": "claude-opus-5-5"
+    },
+    "implementer_vendor_excluded_from_judge": true
+  }
+}
